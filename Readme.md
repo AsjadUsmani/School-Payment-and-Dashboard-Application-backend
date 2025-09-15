@@ -1,8 +1,3 @@
-Here is a ✅ fully improved and professional `README.md` for your project, formatted exactly as you requested, including all routes and clear structure 🌟
-
----
-
-````md
 # School Payment & Dashboard Backend
 
 ## ✅ Project Description
@@ -21,7 +16,6 @@ Handles user authentication, payment creation, webhook handling, and transaction
 - Helmet + CORS (for security)  
 - express-validator (for data validation)  
 
----
 
 ## ✅ Setup & Installation
 
