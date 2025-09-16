@@ -1,3 +1,4 @@
+// Fixed payment controller
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import Order from "../models/order.model.js";
@@ -61,12 +62,15 @@ export const createPayment = async (req, res) => {
 
     const { collect_request_id, collect_request_url } = response.data;
 
-    // Step 4: Create OrderStatus with correct linkage
+    // Step 4: Create OrderStatus with CORRECT linkage
     await OrderStatus.create({
-      collect_id: order._id.toString(), // Link to Order._id
-      collect_request_id: collect_request_id, // From Payment API
+      collect_id: order._id.toString(), // This links to Order._id (correct)
+      collect_request_id: collect_request_id, // This is the payment gateway ID
       order_amount: amount,
-      status: "pending",
+      status: "pending", // FIXED: Should be pending initially, not success
+      transaction_amount: null, // Will be updated by webhook
+      custom_order_id: collect_request_id, // ADDED: This field for frontend
+      payment_time: null, // Will be updated by webhook
     });
 
     // Step 5: Return payment URL to frontend
@@ -113,6 +117,19 @@ export const checkPaymentStatus = async (req, res) => {
     );
 
     const { status, amount, details, jwt: statusJwt } = response.data;
+
+    // ADDED: Update local database with the fetched status
+    await OrderStatus.findOneAndUpdate(
+      { collect_request_id: collect_request_id },
+      {
+        status: status,
+        transaction_amount: amount,
+        payment_time: new Date(),
+        // Add other fields from details if available
+        ...(details && { payment_details: details }),
+      },
+      { new: true }
+    );
 
     res.status(200).json({
       status,
