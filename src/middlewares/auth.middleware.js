@@ -50,7 +50,15 @@ export const validateLogin = [
     next();
   }
 ];
+export default function verifyAuth(req, res, next) {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ message: "No token, not authenticated" });
 
-
-
-export default authMiddleware;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // attaches user info
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+}

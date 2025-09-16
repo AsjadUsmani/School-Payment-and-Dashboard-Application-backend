@@ -69,3 +69,11 @@ export const logout = (req, res) => {
 
   res.status(200).json({ message: "Logged out successfully" });
 };
+
+export const me = async (req, res) => {
+  try {
+    res.status(200).json({ user: req.user });  // user is set in middleware
+  } catch (error) {
+    res.status(401).json({ message: "Not authenticated" });
+  }
+};
