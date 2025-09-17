@@ -28,8 +28,8 @@ export const getAllTransactions = async (req, res) => {
           order_amount: 1,
           transaction_amount: 1,
           status: 1,
-          custom_order_id: 1,     // ✅ Use the correct field name here
-          payment_time: 1,       // ✅ Add payment_time so frontend shows it
+          custom_order_id: "$custom_order_id", // Correct reference
+          payment_time: "$payment_time", // Correct reference
         },
       },
       { $sort: { [sort]: order === "desc" ? -1 : 1 } },
@@ -68,7 +68,8 @@ export const getTransactionsBySchool = async (req, res) => {
           order_amount: 1,
           transaction_amount: 1,
           status: 1,
-          payment_time: 1,
+          custom_order_id: "$custom_order_id", // ✅ Fixed
+          payment_time: "$payment_time", // ✅ Fixed
         },
       },
     ]);
