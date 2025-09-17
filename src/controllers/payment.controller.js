@@ -67,6 +67,7 @@ export const createPayment = async (req, res) => {
       collect_request_id: collect_request_id, // From Payment API
       order_amount: amount,
       status: "pending",
+      custom_order_id: collect_request_id
     });
 
     // Step 5: Return payment URL to frontend

@@ -5,12 +5,13 @@ export const handleWebhook = async (req, res) => {
   try {
     const payload = req.body;
 
-    // Save entire payload
+    // Save entire payload for debugging/auditing
     await WebhookLog.create({ payload });
 
     const orderInfo = payload.order_info;
     const collectId = orderInfo.order_id;
 
+    // Update the existing OrderStatus without creating a new one
     const updated = await OrderStatus.findOneAndUpdate(
       { collect_id: collectId },
       {
@@ -22,13 +23,20 @@ export const handleWebhook = async (req, res) => {
         payment_message: orderInfo.payment_message,
         status: orderInfo.status,
         error_message: orderInfo.error_message,
-        payment_time: orderInfo.payment_time
+        payment_time: orderInfo.payment_time,
+        custom_order_id: collectId,  // Ensure custom_order_id is updated
       },
-      { new: true, upsert: true }
+      { new: true }  // Remove upsert: true
     );
+
+    // If no document is found, respond with error
+    if (!updated) {
+      return res.status(404).json({ message: "OrderStatus with given collect_id not found" });
+    }
 
     return res.status(200).json({ message: "Webhook processed successfully" });
   } catch (error) {
+    console.error("Webhook Controller Error:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
